@@ -25,5 +25,13 @@ jobs:
       - name: Grant execute permission to Maven Wrapper
         run: chmod +x mvnw
 
-      - name: Build and run tests
-        run: ./mvnw -B clean verify
+      - name: Build, run tests and analyze with SonarCloud
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          SONAR_PROJECT_KEY="${GITHUB_REPOSITORY/\//_}"
+          ./mvnw -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey="${SONAR_PROJECT_KEY}" \
+            -Dsonar.organization="${GITHUB_REPOSITORY_OWNER}" \
+            -Dsonar.host.url="https://sonarcloud.io"
